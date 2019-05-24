@@ -1,6 +1,7 @@
 from snownlp import SnowNLP
 import jieba
 import pandas as pd
+import fasttext
 
 content = "代继涛"
 s = SnowNLP(content)
@@ -24,4 +25,13 @@ CONF = conf.CONF
 
 print(CONF.base)
 
-import matplotlib
+test_data = "F:/NLP_learnings/fasttext/testData/Data_test.txt"
+train_data = 'F:/NLP_learnings/fasttext/trainData/Data_train.txt'
+classifier = fasttext.supervised(train_data, "../models/classifier_model", label_prefix='__label__')
+result = classifier.test(train_data)
+print("准确率", result.precision)
+
+# 原有模型在测试集上准确度
+classifier = fasttext.load_model("../models/classifier_model", label_prefix='__label__')
+result = classifier.test(test_data)
+print("准确率", result.precision)

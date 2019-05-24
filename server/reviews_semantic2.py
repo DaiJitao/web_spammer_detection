@@ -13,33 +13,7 @@ good = pd.read_csv("../data/good.csv", index_col=0)
 bad = pd.read_csv("../data/bad.csv", index_col=0)
 
 # 使用现有情感分析工具SnowNLP，其中情感分析功能目前只针对商品评价进行判断
-from snownlp import SnowNLP
 
-gm = []
-# 对好评中的每个评论进行情感分析
-for comment_ in good['comment']:
-    score_ = SnowNLP(comment_).sentiments
-    gm.append(score_)
-    print( " 得分 ", score_, good['comment'])
-gm = np.array(gm)
-
-print("每个评论的情感得分 ", gm)
-# 计算好评中的正面情感平均得分
-print("正面情感平均得分%f" %gm.mean())
-# 打印出好评中正面情感概率少于0.4的评论
-good['comment'][gm < 0.4]
-gm[gm < 0.4]
-
-bm = []
-# 对差评中的每个评论进行情感分析
-for com in bad['comment']:
-    bm.append(SnowNLP(com).sentiments)
-bm = np.array(bm)
-# 计算差评中的正面情感平均得分
-bm.mean()
-# 打印出差评中正面情感概率大于0.6的评论
-bad[bm > 0.6]
-bm[bm > 0.6]
 
 # 使用分类器
 # 使用结巴分词提取关键词作为特征
@@ -48,7 +22,7 @@ import jieba.analyse
 
 
 def key_words(com):
-    keys = jieba.analyse.extract_tags(com, topK=5)
+    keys = jieba.analyse.extract_tags(com, topK=10)
     i = 1
     key_words = {}
     for key in keys:
@@ -56,11 +30,16 @@ def key_words(com):
         i = i + 1
     return key_words
 
-
+print(key_words("姐姐真的笑死了吗？那我可是会很伤心的哦,我要变成爆炸头"))
 # 构造用于分类的特征向量
 comment_set = ([(comment, 'good') for comment in good['comment']] +
                [(comment, 'bad') for comment in bad['comment']])
+
+print("comment_set: ", comment_set)
+
 featuresets = [(key_words(com), g) for (com, g) in comment_set]
+
+print("featuresets: ", featuresets)
 
 # 划分训练集与测试集
 import random
