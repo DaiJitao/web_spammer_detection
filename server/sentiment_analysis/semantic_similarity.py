@@ -38,7 +38,7 @@ class Text:
         return result[3].dropna(axis=0)  # # axis=0 代表删除行 缺失值的处理
 
 
-def main():
+def save_data_to_local():
     ''' 分词处理 '''
     event_name = "zhangDanFeng"
     in_file = 'F:/scrapy/sina_data1.0.0/' + event_name + '/parsedData/all_data.csv'
@@ -58,6 +58,8 @@ def main():
         pickle.dump(file=file, obj=result)
         print("文件保存 %s" % out_file)
 
+''' 每一个用户的评论相似度 '''
 
 if __name__ == "__main__":
-    main()
+    pass
+

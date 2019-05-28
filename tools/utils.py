@@ -20,7 +20,9 @@ def all_index(data, v):
         count += 1
     return result
 
+
 stop_words = __stop_words
+STOP_WORDS = __stop_words()
 
 if __name__ == "__main__":
     pass
