@@ -1,61 +1,57 @@
 import pandas
-from pprint import pprint
+from tools import get_num_all_closed, get_num, date_to_seconds, group
 from math import log2
-import time, datetime
 
 ''' 数据标注 '''
-
-
-def date_to_seconds(date, mode="%Y-%m-%d %H:%M:%S"):
-    ''' 日期转化为秒 '''
-    timeArray = time.strptime(date, mode)
-    timeStamp = int(time.mktime(timeArray))  # 秒
-    return timeStamp
-
-def group(min_, max_, num):
-    interval_max = max_ - min_
-    avg_interval = round((interval_max / num), 3) # 保留三位小数
-    result = []
-    for i in range(num):
-        if i == 0:
-            result.append( (min_, min_+ avg_interval) )
-        elif i == (num-1):
-            start = i * avg_interval + min_
-            result.append((start, max_))
-        else:
-            start = round((i * avg_interval + min_), 3)
-            end = round( (start + avg_interval), 3)
-            result.append((start, end))
-    return result
 
 
 def get_reviews_num(incsv, uid):
     ''' 统计发帖的数量 '''
     data = pandas.read_csv(incsv, header=None)
     data = data[[0, 7]]  # x['6525265489']
-    d = data[data[0] == 7117146750 ]
+    d = data[data[0] == 7117146750]
     print(d[7])
     dates = list(map(date_to_seconds, [i for i in d[7]]))
-    max_cmt_num = 10 # 用户最长的评论数
-    all_cmt_num = len(dates) # 获取所有的评论数
-    dates.sort() # 从小到大排序
+    max_cmt_num = 10  # 用户最长的评论数
+    all_cmt_num = len(dates)  # 获取用户的评论数
+    dates.sort()  # 从小到大排序
     min_, max_ = dates[0], dates[-1]
     result = group(min_, max_, max_cmt_num)
     print(result)
 
 
-
-
+def post_rules(dates, groups):
+    """
+    统计每一个时间段的发帖数量
+    :param dates:
+    :param groups:
+    :return:
+    """
+    dates_len = len(dates)
+    groups_len = len(groups)
+    r = dict()
+    for i in range(groups_len):
+        _min, _max = groups[i]
+        if i == groups_len - 1:  # 如果是最后一行
+            res = get_num_all_closed(_min, _max, dates)
+            index = str(i + 1)
+            r[index] = len(res)
+        else:
+            res = get_num(_min, _max, dates)
+            index = str(i + 1)
+            r[index] = len(res)
+        #
+        for i in res:
+            dates.remove(i)
+    return r
 
 
 if __name__ == "__main__":
     incsv = "F:/scrapy/sina_data1.0.0/fanChengCheng/parsedData/all_data.csv"
     get_reviews_num(incsv, 0)
-    shui = (6/10)*log2(10/6) + (3/10) * log2(10/3) + (1/10)*log2(10/1)
-    norm = (2/10)*log2(10/2) + (1/10)*log2(10/1)
-    norm2 = 6 * (1 / 10) * log2(10 / 1)
-    print("norm %0.18f, norm2:%.18f, 水军H %.18f" %(norm, norm2, shui))
-    # print(group(10, 35, 3))
 
-
-
+    norm1 = (2 / 12) * log2(12 / 2) + 4 * (4 / 12) * log2(12 / 4)
+    shui1 = (1 / 12) * log2(1 / 12) + (8 / 12) * log2(12 / 8) + (3 / 12) * log2(12 / 3)
+    shui2 = (10 / 12) * log2(12 / 10)
+    shui3 = (12 / 12) * log2(1)
+    print("norm %0.18f, shui1:%.18f, shui2 %.18f, shui3:%.18f" % (norm1, shui1, shui2, shui3))
