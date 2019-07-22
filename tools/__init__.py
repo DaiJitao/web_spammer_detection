@@ -41,3 +41,14 @@ def group(min_, max_, num):
             end = round((start + avg_interval), 3)
             result.append((start, end))
     return result
+
+def save_max(value):
+
+    if value < 10:
+        if value > -10:
+            return "{}"
+    else:
+        return None
+
+if __name__ == "__main__":
+    print(save_max(-18))

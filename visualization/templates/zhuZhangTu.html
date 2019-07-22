@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>柱状图</title>
+    <!--<script src="{{ url_for('static', filename='echarts.min.js') }}"></script>-->
+    <!--<script src="{{ url_for('static', filename='jquery-3.4.1.min.js') }}"></script>-->
+    <script src="../static/echarts.min.js"></script>
+    <script src="../static/jquery-3.4.1.min.js"></script>
+</head>
+<body>
+    <div id="main" style="height:500px;border:1px solid #ccc;padding:10px;"></div>
+    <script type="text/javascript">
+        // 初始化
+        var myChart = echarts.init(document.getElementById('main'));
+        // 配置
+        var option = {
+            title:{
+                text:'柱状图'
+            },
+            legend:{
+
+            }
+        }
+
+        // 显示加载动画
+        myChart.showLoading();
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8"/>
+    <meta http-equiv="Content-Language" content="zh-CN">
+    <title>Web-spammer Demo</title>
+    <!--<script src="{{ url_for('static', filename='echarts.min.js') }}" charset="utf-8"></script>-->
+    <script src="../static/echarts.min.js" charset="utf-8"></script>
+    <script src="{{ url_for('static', filename='jquery-3.4.1.min.js') }}" charset="utf-8"></script>
+</head>
+<body>
+
+<div id="main" style="height:500px;border:1px solid #ccc;padding:100px;"></div>
+<!-- 参考网址 https://gallery.echartsjs.com/editor.html?c=xAFYsB3sA4 -->
+<script type="text/javascript">
+    var myChart = echarts.init(document.getElementById('main'));
+    // 显示标题，图例和空的坐标轴
+    var myColor = ['#eb2100', '#eb3600', '#d0570e', '#d0a00e', '#34da62', '#00e9db', '#00c0e9', '#0096f3', '#33CCFF', '#33FFCC'];
+    var option = {
+        backgroundColor: '#0e2147',
+        grid: {
+            left: '25%',
+            top: '12%',
+            right: '25%',
+            bottom: '8%',
+            containLabel: true
+        },
+        toolbox: {
+            show: true,
+            feature: {
+                dataView: {show: true, readOnly: false},
+                magicType: {show: true, type: ['line', 'bar']},
+                restore: {show: true},
+                saveAsImage: {show: true}
+            }
+        },
+        xAxis: [{
+            show: false,
+        }],
+        yAxis: [{
+            axisTick: 'none',
+            axisLine: 'none',
+            offset: '27',
+            axisLabel: {
+                textStyle: {
+                    color: '#ffffff',
+                    fontSize: '16',
+                }
+            },
+            data: [] // data
+        }, {
+            axisTick: 'none',
+            axisLine: 'none',
+            axisLabel: {
+                textStyle: {
+                    color: '#ffffff',
+                    fontSize: '0',
+                }
+            },
+            data: [10, 9, 8, 7, 6, 5, 4, 3]
+        }, {
+            name: '用户活跃天数',
+            nameGap: '10',
+            nameTextStyle: {
+                color: '#ffffff',
+                fontSize: '20',
+            },
+            axisLine: {
+                lineStyle: {
+                    color: 'rgba(0,0,0,0)'
+                }
+            },
+            data: [],
+        }],
+        series: [
+            {
+                name: '条',
+                type: 'bar',
+                yAxisIndex: 0,
+                data: [], //data
+                label: {
+                    normal: {
+                        show: true,
+                        position: 'right',
+                        textStyle: {
+                            color: '#ffffff',
+                            fontSize: '16',
+                        }
+                    }
+                },
+                barWidth: 12,
+                itemStyle: {
+                    normal: {
+                        color: function (params) {
+                            var num = myColor.length;
+                            return myColor[params.dataIndex % num]
+                        },
+                    }
+                },
+                z: 2
+            }, {
+                name: '白框',
+                type: 'bar',
+                yAxisIndex: 1,
+                barGap: '-100%',
+                data: [99, 99.5, 99.5, 99.5, 99.5, 99.5, 99.5, 99.5],
+                barWidth: 20,
+                itemStyle: {
+                    normal: {
+                        color: '#0e2147',
+                        barBorderRadius: 5,
+                    }
+                },
+                z: 1
+            }, {
+                name: '外框',
+                type: 'bar',
+                yAxisIndex: 2,
+                barGap: '-100%',
+                data: [0, 0, 0, 0, 0, 0, 0, 0],
+                barWidth: 24,
+                itemStyle: {
+                    normal: {
+                        color: function (params) {
+                            var num = myColor.length;
+                            return myColor[params.dataIndex % num]
+                        },
+                        barBorderRadius: 5,
+                    }
+                },
+                z: 0
+            },
+            {
+                name: '外圆',
+                type: 'scatter',
+                hoverAnimation: false,
+                data: [0, 0, 0, 0, 0, 0, 0, 0],
+                yAxisIndex: 2,
+                symbolSize: 35,
+                itemStyle: {
+                    normal: {
+                        color: function (params) {
+                            var num = myColor.length;
+                            return myColor[params.dataIndex % num]
+                        },
+                        opacity: 1,
+                    }
+                },
+                z: 2
+            }
+        ]
+    };
+
+    myChart.setOption(option)
+    // myChart.showLoading(); // 显示加载动画
+
+    // 异步加载数据
+    $.get('/days_data').done(function (data) {
+            myChart.hideLoading(); // 隐藏加载动画
+            console.log(data);
+            // 填入数据
+            var option = {
+                yAxis: {
+                    data: data.days
+                },
+                series: [{
+                    name: '条', // 根据名字对应到相应的系列
+                    data: data.num.map(parseFloat) // 转化为数字（注意map）
+                }
+//                , {
+//                    name: '降水量',
+//                    data: data.precipitation.map(parseFloat)
+//                }
+                ]
+            }
+            myChart.setOption(option);
+        }
+    );
+
+</script>
+
+</body>
+</html>

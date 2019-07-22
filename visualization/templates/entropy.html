@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8"/>
+    <meta http-equiv="Content-Language" content="zh-CN">
+    <title>Web-spammer Demo</title>
+    <!--<script src="{{ url_for('static', filename='echarts.min.js') }}" charset="utf-8"></script>-->
+    <script src="../static/echarts.min.js" charset="utf-8"></script>
+    <script src="{{ url_for('static', filename='jquery-3.4.1.min.js') }}" charset="utf-8"></script>
+</head>
+<body>
+
+<div id="main" style="height:500px;border:1px solid #ccc;padding:100px;"></div>
+<!-- 参考网址 https://echarts.baidu.com/examples/editor.html?c=scatter-aqi-color -->
+<script type="text/javascript">
+    var myChart = echarts.init(document.getElementById('main'));
+    // 显示标题，图例和空的坐标轴 [count, uid, postnum, entropy]
+    var schema = [
+        {name: 'date', index: 0, text: '发帖数量'},
+        {name: 'AQIindex', index: 1, text: '信息熵'},
+        {name: 'PM25', index: 2, text: '用户Id'},
+        {name: 'PM10', index: 3, text: '用户名字'},
+        {name: 'CO', index: 4, text: '用户活跃天数'},
+        {name: 'NO2', index: 5, text: '用户语义重复率'},
+        {name: 'SO2', index: 6, text: '新闻关注度'}
+    ];
+
+
+    var itemStyle = {
+        normal: {
+            opacity: 0.8,
+            shadowBlur: 10,
+            shadowOffsetX: 0,
+            shadowOffsetY: 0,
+            shadowColor: 'rgba(0, 0, 0, 0.5)'
+        }
+    };
+
+    option = {
+        backgroundColor: '#404a59',
+        color: [
+            '#dd4444', '#fec42c', '#80F1BE'
+        ],
+        legend: {
+            y: 'top',
+            data: ['范丞丞事件', '张丹峰事件', '广州'],
+            textStyle: {
+                color: '#fff',
+                fontSize: 16
+            }
+        },
+        grid: {
+            x: '10%',
+            x2: 150,
+            y: '18%',
+            y2: '10%'
+        },
+        tooltip: {
+            padding: 10,
+            backgroundColor: '#222',
+            borderColor: '#777',
+            borderWidth: 1,
+            formatter: function (obj) {
+                var value = obj.value;
+                return '<div style="border-bottom: 1px solid rgba(255,255,255,.3); font-size: 18px;padding-bottom: 7px;margin-bottom: 7px">'
+                    + obj.seriesName + ' :' + value[0] + '次发帖' + value[7]
+                    + '</div>'
+                    + schema[1].text + '：' + value[1] + '<br>'
+                    + schema[2].text + '：' + value[2] + '<br>'
+                    + schema[3].text + '：' + value[3] + '<br>'
+                    + schema[4].text + '：' + value[4] + '<br>'
+                    + schema[5].text + '：' + value[5] + '<br>'
+                    + schema[6].text + '：' + value[6] + '<br>';
+            }
+        },
+        xAxis: {
+            type: 'value',
+            name: '发帖数量',
+            nameGap: 16,
+            nameTextStyle: {
+                color: '#fff',
+                fontSize: 14
+            },
+            max: 31,
+            splitLine: {
+                show: false
+            },
+            axisLine: {
+                lineStyle: {
+                    color: '#eee'
+                }
+            }
+        },
+        yAxis: {
+            type: 'value',
+            name: '信息熵',
+            nameLocation: 'end',
+            nameGap: 20,
+            nameTextStyle: {
+                color: '#fff',
+                fontSize: 16
+            },
+            axisLine: {
+                lineStyle: {
+                    color: '#eee'
+                }
+            },
+            splitLine: {
+                show: false
+            }
+        },
+        visualMap: [
+            {
+                left: 'right',
+                top: '10%',
+                dimension: 1,
+                min: -0.5,
+                max: 5,
+                itemWidth: 30,
+                itemHeight: 120,
+                calculable: true,
+                precision: 0.1,
+                text: ['信息熵'],
+                textGap: 30,
+                textStyle: {
+                    color: '#fff'
+                },
+                inRange: {
+                    symbolSize: [10, 70]
+                },
+                outOfRange: {
+                    symbolSize: [10, 70],
+                    color: ['rgba(255,255,255,.2)']
+                },
+                controller: {
+                    inRange: {
+                        color: ['#c23531']
+                    },
+                    outOfRange: {
+                        color: ['#444']
+                    }
+                }
+            },
+            {
+                left: 'right',
+                bottom: '5%',
+                dimension: 0,
+                min: -1,
+                max: 35,
+                itemHeight: 120,
+                calculable: true,
+                precision: 0.1,
+                text: ['发帖数量'],
+                textGap: 30,
+                textStyle: {
+                    color: '#fff'
+                },
+                inRange: {
+                    colorLightness: [1, 0.5]
+                },
+                outOfRange: {
+                    color: ['rgba(255,255,255,.2)']
+                },
+                controller: {
+                    inRange: {
+                        color: ['#c23531']
+                    },
+                    outOfRange: {
+                        color: ['#444']
+                    }
+                }
+            }
+        ],
+        series: [
+            {
+                name: '范丞丞事件',
+                type: 'scatter',
+                itemStyle: itemStyle,
+                data: []
+            },
+            {
+                name: '张丹峰事件',
+                type: 'scatter',
+                itemStyle: itemStyle,
+                data: []
+            },
+        ]
+    };
+
+    // -----
+    myChart.setOption(option)
+    myChart.showLoading(); // 显示加载动画
+
+    // 异步加载数据
+    $.get('/entropy_data').done(function (data) {
+            myChart.hideLoading(); // 隐藏加载动画
+            console.log(data);
+            // 填入数据
+            var option = {
+                series: [
+                    {
+                        name: '范丞丞事件', // 根据名字对应到相应的系列
+                        data: data.dataBJ // 转化为数字（注意map）entropy_data
+                    },
+                    {
+                        name: "张丹峰事件",
+                        data:data.dataZhang
+                    }
+                ]
+            }
+            myChart.setOption(option);
+        }
+    );
+
+</script>
+
+</body>
+</html>
